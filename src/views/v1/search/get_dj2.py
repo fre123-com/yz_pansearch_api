@@ -1,12 +1,12 @@
 """
-    Created by fre123 at 2024-10-28.
-    Description: 获取短剧资源
+    Created by fre123 at 2024-12-08.
+    Description: 获取 dj2 资源
     Changelog: all notable changes to this file will be documented
 """
 
 from flask import current_app, request
 
-from src.collector import dj_spider
+from src.collector import dj2_spider
 from src.common import ResponseField, UniResponse, response_handle, token_required
 from src.config import LOGGER, Config
 from src.logic.cache_tools import get_cache, set_cache
@@ -16,9 +16,9 @@ from src.utils import md5_encryption
 
 
 # @token_required()
-def get_dj():
+def get_dj2():
     """
-    测试接口
+    dj2 资源测试接口
     """
     app_logger: LOGGER = current_app.config["app_logger"]
     app_config: Config = current_app.config["app_config"]
@@ -37,16 +37,17 @@ def get_dj():
 
     if kw:
         # 是否从缓存获取数据
-        md5_key = md5_encryption(f"{kw}_{proxy_model}")
-        cache_key = f"yz_pansearch:dj:{md5_key}"
+        md5_key = md5_encryption(f"{kw}_{pan_type_list}_{proxy_model}")
+        cache_key = f"yz_pansearch:dj2:{md5_key}"
         redis_data = None
         if is_cache == "1":
             redis_data = get_cache(cache_key)
         if redis_data:
             result = redis_data
         else:
-            spider_data = dj_spider.get_dj_data(kw, proxy_model)
+            spider_data = dj2_spider.get_dj2_data(kw, proxy_model)
             target_data = []
+            print(spider_data)
             if spider_data:
                 for res in spider_data:
                     res_dict = {}
@@ -75,7 +76,7 @@ def get_dj():
                     if res_dict:
                         target_data.append(
                             {
-                                "title": res.get("title", ""),
+                                "name": res.get("name", ""),
                                 "description": "",
                                 "res_dict": res_dict,
                             }
@@ -89,12 +90,10 @@ def get_dj():
                 **{
                     ResponseField.DATA: {
                         "total": len(target_data),
-                        "rows": target_data,
+                        "row": target_data,
                     }
                 },
             }
             if target_data and is_cache == "1":
                 set_cache(cache_key, result, expire=app_config.CACHE_TTL)
-    else:
-        result = UniResponse.PARAM_ERR
     return response_handle(request=request, dict_value=result)
