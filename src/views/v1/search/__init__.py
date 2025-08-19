@@ -9,3 +9,4 @@ from .get_kk import get_kk
 from .get_pansearch import get_pansearch
 from .get_xxq import get_xxq
 from .get_soushuju import get_soushuju
+from .get_star import get_star

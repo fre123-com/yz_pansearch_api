@@ -1,0 +1,25 @@
+meta {
+  name: get_star
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{api}}/v1/search/get_star
+  body: json
+  auth: none
+}
+
+headers {
+  APP-ID: yz_soushuju_api
+  APP-TOKEN: {{app-token}}
+  PAN-TYPE: quark;baidu
+  CHECK-PAN-URL: 0
+  IS-CACHE: 1
+}
+
+body:json {
+  {
+    "kw": "法"
+  }
+}

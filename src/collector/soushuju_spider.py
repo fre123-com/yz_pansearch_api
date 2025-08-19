@@ -29,32 +29,26 @@ def parse_page_data(kw, html_content):
     tree = html.fromstring(html_content)
     data_list = []
     items = tree.xpath('//div[@class="box"]//div[@class="info"]')
-    
+
     for item in items:
         title = (
-            item.xpath('text()[1]')[0].split('\n')[1].strip() 
-            if item.xpath('text()[1]') 
+            item.xpath("text()[1]")[0].split("\n")[1].strip()
+            if item.xpath("text()[1]")
             else ""
         )
 
-        url = (
-            item.xpath('.//a/@href')[0]
-            if item.xpath('.//a/@href')
-            else ""
-        )
+        url = item.xpath(".//a/@href")[0] if item.xpath(".//a/@href") else ""
 
         code = (
-            re.search(r'提取码[:：]\s*(\w{4})', item.text_content()).group(1)
-            if re.search(r'提取码[:：]\s*(\w{4})', item.text_content())
+            re.search(r"提取码[:：]\s*(\w{4})", item.text_content()).group(1)
+            if re.search(r"提取码[:：]\s*(\w{4})", item.text_content())
             else ""
         )
-        
-        data_list.append({
-            "title": title,
-            "url": url,
-            "code": code
-        })
-    
+        if code == "无需密码":
+            code = ""
+
+        data_list.append({"title": title, "url": url, "code": code})
+
     return data_list
 
 
@@ -84,7 +78,7 @@ def run_spider(kw: str, proxy_model: int = 0):
 
     html_content = fetch_page_data(req_url, headers, proxy)
     if isinstance(html_content, dict) and "err_msg" in html_content:
-        print(f"请求失败: {html_content['err_msg']}")
+        LOGGER.error(f"请求失败: {html_content['err_msg']}")
         return None
 
     parsed_data = parse_page_data(kw, html_content)
@@ -94,6 +88,6 @@ def run_spider(kw: str, proxy_model: int = 0):
 if __name__ == "__main__":
     from pprint import pprint
 
-    data = run_spider(kw="法", proxy_model=0)
+    data = run_spider(kw="奥特曼", proxy_model=0)
     if data:
         pprint(data)
